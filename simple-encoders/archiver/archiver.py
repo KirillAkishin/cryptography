@@ -19,7 +19,7 @@ def archiving(dir_path, arc_path):
             logger.error(f"arc.testzip='{zf.testzip()}'")
     logger.info(f"archiv::{dir_path}::{arc_path}")
 
-def unarchiving(arc_path, dir_path):
+def unarchiving(dir_path, arc_path):
     if os.path.exists(dir_path):
         dir_path += f" @{datetime.now().timestamp()}"
     with ZipFile(arc_path, "r") as zf:
