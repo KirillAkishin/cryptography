@@ -4,6 +4,7 @@ logger.debug(f"start::{__name__}")
 from zipfile import ZipFile, ZIP_DEFLATED
 from datetime import datetime
 import os
+import sys
 import base64
 from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
@@ -105,6 +106,47 @@ class Encryptor:
             return False
         logger.error(f"cmp::invalid_formats")
         return False
+
+def main(args):
+    inpt = args.inpt
+    outp = args.outp
+    enc = Encryptor()
+    if args.u:
+        enc.unarchiving(outp, inpt)
+        return
+    if args.a:
+        return enc.archiving(inpt, outp)
+    if args.d:
+        enc.decrypt_folder(outp, inpt)
+        return
+    if args.e:
+        return enc.encrypt_folder(inpt, outp)
+    if args.c:
+        return enc.compare(inpt, outp)
+    logger.error(f"See help (--help)")
+    return False
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(prog='encryptor.py')
+    parser.add_argument('-u', action='store_true', help='turn on unarchiving mode')
+    parser.add_argument('-a', action='store_true', help='turn on archiving mode')
+    parser.add_argument('-d', action='store_true', help='turn on decrypting mode')
+    parser.add_argument('-e', action='store_true', help='turn on encrypting mode')
+    parser.add_argument('-c', action='store_true', help='turn on comparing mode')
+    parser.add_argument('inpt', type=str, help='Input path')
+    parser.add_argument('outp', type=str, help='Output target')
+    args = parser.parse_args()
+    logger.debug(f"args::{args}")
+    ok = main(args)
+    logger.debug(f"end::{__name__}")
+    # FOR TESTING
+    # python encryptor.py -a "../../_dummy/dummy-data" "../../_dummy/dummy-storage.zip"
+    # python encryptor.py -u "../../_dummy/dummy-storage.zip" "../../_dummy/dummy-data"
+    # python encryptor.py -e "../../_dummy/dummy-data" "../../_dummy/dummy-storage.zip.sec"
+    # python encryptor.py -d "../../_dummy/dummy-storage.zip.sec" "../../_dummy/dummy-data"
+    # python encryptor.py -c "../../_dummy/dummy-data" "../../_dummy/dummy-data @TIMESTAMP"
+
 
 
 
