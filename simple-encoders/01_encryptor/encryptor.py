@@ -140,12 +140,6 @@ if __name__ == "__main__":
     logger.debug(f"args::{args}")
     ok = main(args)
     logger.debug(f"end::{__name__}")
-    # FOR TESTING
-    # python encryptor.py -a "../../data/source" "../../data/source-archive.zip"
-    # python encryptor.py -u "../../data/source-archive.zip" "../../data/source"
-    # python encryptor.py -e "../../data/source" "../../data/source-archive.zip.sec"
-    # python encryptor.py -d "../../data/source-archive.zip.sec" "../../data/source"
-    # python encryptor.py -c "../../data/source" "../../data/source @TIMESTAMP"
 
 
 

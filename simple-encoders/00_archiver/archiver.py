@@ -42,7 +42,5 @@ if __name__ == "__main__":
         archiving(dir_path, arc_path)
     logger.debug(f"end::{__name__}")
 
-    # FOR TESTING
-    # python archiver.py "../../data/source/" "../../data/source-archive.zip"
 
 
