@@ -43,6 +43,6 @@ if __name__ == "__main__":
     logger.debug(f"end::{__name__}")
 
     # FOR TESTING
-    # python archiver.py "../../_dummy/root_folder/" "../../_dummy/dummy-storage.zip"
+    # python archiver.py "../../data/source/" "../../data/source-archive.zip"
 
 

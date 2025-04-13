@@ -141,12 +141,11 @@ if __name__ == "__main__":
     ok = main(args)
     logger.debug(f"end::{__name__}")
     # FOR TESTING
-    # python encryptor.py -a "../../_dummy/dummy-data" "../../_dummy/dummy-storage.zip"
-    # python encryptor.py -u "../../_dummy/dummy-storage.zip" "../../_dummy/dummy-data"
-    # python encryptor.py -e "../../_dummy/dummy-data" "../../_dummy/dummy-storage.zip.sec"
-    # python encryptor.py -d "../../_dummy/dummy-storage.zip.sec" "../../_dummy/dummy-data"
-    # python encryptor.py -c "../../_dummy/dummy-data" "../../_dummy/dummy-data @TIMESTAMP"
-
+    # python encryptor.py -a "../../data/source" "../../data/source-archive.zip"
+    # python encryptor.py -u "../../data/source-archive.zip" "../../data/source"
+    # python encryptor.py -e "../../data/source" "../../data/source-archive.zip.sec"
+    # python encryptor.py -d "../../data/source-archive.zip.sec" "../../data/source"
+    # python encryptor.py -c "../../data/source" "../../data/source @TIMESTAMP"
 
 
 
