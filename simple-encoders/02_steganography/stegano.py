@@ -15,10 +15,9 @@ def encode(carrier_filename, output_filename, payload_bytes):
     cap_b = int(image_capacity)
     cap_B = int(image_capacity / 8)
     cap_KiB = round(float(image_capacity / (8*1024)),2)
-    cap_MiB = round(float(image_capacity / (8*1024*1024)),2)
-    print(f"image_capacity = {cap_b} bits = {cap_B} bytes = {cap_KiB} KiB = {cap_MiB} MiB")
+    logger.info(f"carrier image: '{carrier_filename}'")
+    logger.info(f"carrier image capacity: {cap_b} b = {cap_B} B = {cap_KiB} KiB")
     ##### LOG BLOCK
-
 
     new_image_data = []
     payload_bits = list()  # a list of bits, '1' and '0' strings
@@ -71,56 +70,48 @@ def decode(infile):
                     output_bytes += bytes((int(bit_string, 2),))
                     bit_string = ""
                 if payload_len == 0 and len(output_bytes) == 16:
-                    print(output_bytes)
-                    print(str(output_bytes))
-                    print(str(output_bytes).isnumeric())
                     if output_bytes.decode().isnumeric():
-                        print(output_bytes.decode())
-                        print(output_bytes.decode().isnumeric())
                         payload_len = int(output_bytes)
                         output_bytes = b''
                     else:
-                        print("Error: Header is not valid")
+                        logger.error("Error: Header is not valid")
                         return
                 if (len(output_bytes) == payload_len) and (payload_len != 0):
                     return output_bytes
-
-    print("Error: Payload is incomplete")
+    logger.error("Error: Payload is incomplete")
     return
 
 def generate_random_image(save_file='result_image.png', width=1_000, height=1_000, chanals=4):
-    imarray = numpy.random.rand(width, height, chanals) * 255
+    # default capacity: 488 KiB
+    imarray = np.random.rand(width, height, chanals) * 255
     im = Image.fromarray(imarray.astype('uint8')).convert('RGBA')
     im.save(save_file)
 
 def main(args):
-    if args.d:
-        assert (
-            args.e is False
-            and args.inpt is not None
-            and args.output is None
-            and args.secret is None
-        )
-        secret = decode(args.inpt)
-        logger.info(f'len={len(secret.decode())}')
-        # return secret.decode()
-        return
+    target_obj = args.target_obj
+    result_obj = args.result_obj
     if args.e:
-        assert (
-            args.d is False
-            and args.inpt is not None
-            and args.output is not None
-            and args.secret is not None
-        )
-        carrier_filename = args.inpt
-        output_filename = args.output
-        args_secret = args.secret
-        if os.path.isfile(args_secret):
-            with open(args_secret, 'rb') as f:
+        assert (args.d is False)
+        if os.path.isfile(target_obj):
+            with open(target_obj, 'rb') as f:
                 payload_bytes = f.read()
         else:
-            payload_bytes = args_secret.encode()
-        # return encode(carrier_filename, output_filename, payload_bytes)
+            payload_bytes = target_obj.encode()
+        if args.img is None:
+            carrier_filename = ".temp_image.png"
+            generate_random_image(save_file=carrier_filename)
+        else:
+            carrier_filename = args.img
+        encode(carrier_filename, result_obj, payload_bytes)
+        if args.img is None:
+            os.remove(carrier_filename)
+        return
+    if args.d:
+        assert (args.e is False) and (args.img is None)
+        result = decode(target_obj)
+        logger.info(f'len:\t{len(result)}')
+        logger.info(f'decode:\t{result.decode()}')
+        result.decode()
         return
     logger.error(f"See help (--help)")
     return False
@@ -128,9 +119,9 @@ def main(args):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(prog='stegano.py')
-    parser.add_argument('inpt', type=str, help='Input image path')
-    parser.add_argument('--secret', type=str, help='Secret file path or message')
-    parser.add_argument('--output', type=str, help='Output image path')
+    parser.add_argument('target_obj', type=str, help="Either secret or file with payload")
+    parser.add_argument('--img', type=str, help='Image (empty carrier)')
+    parser.add_argument('result_obj', type=str, help='Encrypted/decrypted file')
     parser.add_argument('-e', action='store_true', default=False, help='turn on encrypting mode')
     parser.add_argument('-d', action='store_true', default=False, help='turn on decrypting mode')
     args = parser.parse_args()
