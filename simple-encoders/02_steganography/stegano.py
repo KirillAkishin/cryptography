@@ -5,6 +5,7 @@ import os
 import numpy as np
 from PIL import Image
 
+# LSB method
 def encode(carrier_filename, output_filename, payload_bytes):
     with Image.open(carrier_filename) as source_image:
         image_data = np.asarray(source_image)  # the image as an array of rows of pixels
@@ -120,7 +121,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(prog='stegano.py')
     parser.add_argument('target_obj', type=str, help="Either secret or file with payload")
-    parser.add_argument('--img', type=str, help='Image (empty carrier)')
+    parser.add_argument('--img', type=str, help='Cover image')
     parser.add_argument('result_obj', type=str, help='Encrypted/decrypted file')
     parser.add_argument('-e', action='store_true', default=False, help='turn on encrypting mode')
     parser.add_argument('-d', action='store_true', default=False, help='turn on decrypting mode')
