@@ -35,6 +35,20 @@ python encryptor.py -c "../../data/source" "../../data/source @TIMESTAMP"
 ```
 
 #### 02_steganography
+- https://www.reddit.com/r/Python/comments/gdjnfn/my_take_at_steganography
+- https://exo.substack.com/p/the-exo-guide-to-data-cloaking
+- https://en.wikipedia.org/wiki/Steganography
+- https://ru.wikipedia.org/wiki/Стеганография
+- https://habr.com/ru/companies/vdsina/articles/518292
+- https://habr.com/ru/articles/803839
+- https://habr.com/ru/articles/848048
+- https://habr.com/ru/articles/422593
+- https://habr.com/ru/articles/651905
+- https://habr.com/ru/articles/253045
+- https://habr.com/ru/articles/862598
+- https://habr.com/ru/articles/128327
+- https://habr.com/ru/articles/339432
+
 #### 03_sss
 - https://github.com/jesseduffield/horcrux
 - https://en.wikipedia.org/wiki/Shamir's_secret_sharing
