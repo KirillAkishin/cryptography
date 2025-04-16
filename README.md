@@ -61,12 +61,12 @@ python stegano.py -e ../../data/first_image.png --img=../../data/second_image.pn
 python stegano.py -d ../../data/third_image.png --res=../../data/fourth_image.png
 ```
 
-###### Encrypting message (in random noisy image)
+###### Encrypting message
 ```bash
 python stegano.py -e test_message+123 --img=../../data/second_image.png --res=../../data/fifth_image.png
 ```
 
-###### Decrypting message (in random noisy image)
+###### Decrypting message
 ```bash
 python stegano.py -d ../../data/fifth_image.png
 ```
