@@ -3,7 +3,7 @@ import logging_config
 logger = logging_config.get_logger(__name__)
 logger.debug(f"start::{__name__}")
 
-from os import path
+import os
 from hashlib import md5
 
 
@@ -80,7 +80,7 @@ class SSS:
         chunk = head + left + rght
         return chunk
 
-    def restoring(self, chunks):
+    def merge_chunks(self, chunks):
         def proc_one_file(chunk):
             with open(chunk, "rb") as f:
                 marks = f.readline().decode().strip()
@@ -108,18 +108,12 @@ class SSS:
         merged_file = merging(sgms)
         return merged_file
 
-def _restoring_test(chunk_names, full=True):
-    with open(chunk_names[0], "rb") as f:
-        ch0 = f.read()
-    with open(chunk_names[1], "rb") as f:
-        ch1 = f.read()
-    with open(chunk_names[2], "rb") as f:
-        ch2 = f.read()
-    r01 = restoring(chunk_left=ch0, chunk_rght=ch1)
-    r12 = restoring(chunk_left=ch1, chunk_rght=ch2)
-    r20 = restoring(chunk_left=ch2, chunk_rght=ch0)
-    assert r01 == r12 == r20
-    return r01, r12, r20
+    def restoring(self, dec, to='restored-file'):
+        # chunks = [i for i in os.listdir(dec) if i.endswith('.chunk')]
+        chunks = [os.path.abspath(os.path.join(os.getcwd(), dec, i)) for i in os.listdir(dec) if i.endswith('.chunk')]
+        merged_file = self.merge_chunks(chunks)
+        with open(to, 'wb') as f:
+            f.write(merged_file)
 
 def _unit_testing(secret=None, n=3):
     if secret:
@@ -145,7 +139,7 @@ def main(args):
     if args.enc:
         return sss.chunking(enc=args.enc)
     if args.dec:
-        return sss.restoring(enc=args.dec)
+        return sss.restoring(dec=args.dec)
     logger.error(f"See help (--help)")
     return False
 
