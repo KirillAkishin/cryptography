@@ -80,67 +80,33 @@ class SSS:
         chunk = head + left + rght
         return chunk
 
-    # special case (3-2: 3 files, 2 segments in one file)
-    # TODO: generalized function
-    def restoring(
-            self,
-            chunk_left,
-            chunk_rght,
-            sep_mark:str='=mark@',
-            sep_left:str='=rght@',
-            sep_rght:str='=left@'):
-        b_sep_mark=MD5(sep_mark).encode()
-        b_sep_left=MD5(sep_left).encode()
-        b_sep_rght=MD5(sep_rght).encode()
+    def restoring(self, chunks):
+        def proc_one_file(chunk):
+            with open(chunk, "rb") as f:
+                marks = f.readline().decode().strip()
+                ln_list = []
+                for _ in marks:
+                    ln_list.append(int(f.readline().decode().strip()))
+                combined_chunks = f.read()
+            sgms = {}
+            for m, ln in zip(marks, ln_list):
+                sgms[m] = combined_chunks[:ln]
+                combined_chunks = combined_chunks[ln:]
+            return sgms
 
-        # first
-        mark, ch1 = chunk_left.split(b_sep_mark)
-        left_len, ch2 = ch1.split(b_sep_left)
-        rght_len, ch3 = ch2.split(b_sep_rght)
-
-        left_len = int(left_len.decode())
-        rght_len = int(rght_len.decode())
-
-        left_mark = int(chr(mark[0]))
-        rght_mark = int(chr(mark[1]))
-
-        logger.debug(f"{left_mark=}\t@{left_len=}")
-        logger.debug(f"{rght_mark=}\t@{rght_len=}")
-
-        sgms = {}
-
-        sgms[left_mark] = ch3[:left_len]
-        sgms[rght_mark] = ch3[left_len:]
-        assert len(sgms[rght_mark]) == rght_len
-
-        # second
-        mark, ch1 = chunk_rght.split(b_sep_mark)
-        left_len, ch2 = ch1.split(b_sep_left)
-        rght_len, ch3 = ch2.split(b_sep_rght)
-
-        left_len = int(left_len.decode())
-        rght_len = int(rght_len.decode())
-
-        left_mark = int(chr(mark[0]))
-        rght_mark = int(chr(mark[1]))
-
-        logger.debug(f"{left_mark=}\t@{left_len=}")
-        logger.debug(f"{rght_mark=}\t@{rght_len=}")
-
-        sgms[left_mark] = ch3[:left_len]
-        sgms[rght_mark] = ch3[left_len:]
-        assert len(sgms[rght_mark]) == rght_len
-
-        def integration(sgms, n=3):
-            res = bytearray([x for xs in list(zip(sgms[0],sgms[1],sgms[2])) for x in xs])
-            max_len = max(len(sgms[0]),len(sgms[1]),len(sgms[2]))
-            min_len = min(len(sgms[0]),len(sgms[1]),len(sgms[2]))
+        def merging(sgms):
+            res = bytearray([x for xs in list(zip(*sgms.values())) for x in xs])
+            max_len = max(map(lambda x: len(x), sgms.values()))
+            min_len = min(map(lambda x: len(x), sgms.values()))
             if max_len != min_len:
-                res += bytearray([sgms[i][-1] for i in range(n) if len(sgms[i]) == max_len])
+                res += bytearray([sgms[i][-1] for i in range(len(sgms)) if len(sgms[str(i)]) == max_len])
             return res
 
-        res = integration(sgms)
-        return res
+        sgms = {}
+        for chunk in chunks:
+            sgms.update(proc_one_file(chunk))
+        merged_file = merging(sgms)
+        return merged_file
 
 def _restoring_test(chunk_names, full=True):
     with open(chunk_names[0], "rb") as f:
