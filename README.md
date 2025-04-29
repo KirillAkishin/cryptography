@@ -77,4 +77,18 @@ python stegano.py -d ../../data/fifth_image.png
 - https://en.wikipedia.org/wiki/Shamir's_secret_sharing
 - https://habr.com/ru/companies/globalsign/articles/776520
 
+##### Commands
+###### Generate test file
+```bash
+python sharing.py --dummy="../../data/test-file"
+```
+
+###### Sharing file
+```bash
+python sharing.py --enc="../../data/test-file" --dummy="../../data/test-file"
+# or
+python sharing.py --enc="../../data/test-file"
+```
+
+
 ### 10_all-in-one
