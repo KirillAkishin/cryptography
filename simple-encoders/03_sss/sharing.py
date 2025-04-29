@@ -14,28 +14,6 @@ def generate_dummy(filename='dummy.enc', size:int=100):
     with open(filename, "rb") as f:
         return f.read()
 
-class MD5:
-    def __init__(self, data):
-        self.data = data
-        if data != None:
-            self.data = str(data)
-            self.hash = md5(self.data.encode()).hexdigest()
-        else:
-            self.data = ''
-            self.hash = ''
-    def __str__(self) -> str:
-        return f"{self.data}({self.hash})"
-    def __repr__(self) -> str:
-        return self.hash
-    def __call__(self):
-        return self.data
-    def __add__(self, val2):
-        if val2.data == None:
-            return self
-        return MD5(self.data + val2.data)
-    def encode(self):
-        return self.hash.encode()
-
 class SSS:
     def __init__(self,):
         pass
@@ -116,23 +94,6 @@ class SSS:
         merged_file = self.merge_chunks(chunks)
         with open(to, 'wb') as f:
             f.write(merged_file)
-
-def _unit_testing(secret=None, n=3):
-    if secret:
-        with open(secret, "rb") as f:
-            encrypted = f.read()
-    else:
-        encrypted = generate_dummy()
-        logger.debug("dummy::YES")
-    logger.debug(f"len(encrypted)::{len(encrypted)}")
-    chunk_names = _chunking_test(encrypted=encrypted, n=n)
-    r01, r12, r20 = _restoring_test(chunk_names)
-    assert encrypted == r01
-    assert encrypted == r12
-    assert encrypted == r20
-    logger.info(f'shredder::OK')
-
-
 
 def main(args):
     if args.dummy:
