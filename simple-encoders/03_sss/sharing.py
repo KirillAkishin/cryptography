@@ -40,13 +40,16 @@ class SSS:
     def __init__(self,):
         pass
 
-    def chunking(self, enc=None, n=3, chunk_prefix='TEST'):
+    def chunking(self, enc=None, n=3, chunk_prefix='TEST', to='sharing-folder/'):
         with open(enc, "rb") as f:
             encrypted = f.read()
         logger.debug(f"len::{len(encrypted)}")
+        folder_out = os.path.abspath(os.path.join(os.getcwd(), to))
+        if not os.path.exists(folder_out):
+            os.makedirs(folder_out)
         chunks = []
         for mark, chunk in self.gen_chunks(encrypted, n=n):
-            chunk_name = f"{chunk_prefix}@{mark=}.chunk"
+            chunk_name = os.path.join(folder_out, f"{chunk_prefix}@{mark=}.chunk")
             with open(chunk_name, "wb") as f:
                 f.write(chunk)
             chunks.append(chunk_name)
@@ -109,7 +112,6 @@ class SSS:
         return merged_file
 
     def restoring(self, dec, to='restored-file'):
-        # chunks = [i for i in os.listdir(dec) if i.endswith('.chunk')]
         chunks = [os.path.abspath(os.path.join(os.getcwd(), dec, i)) for i in os.listdir(dec) if i.endswith('.chunk')]
         merged_file = self.merge_chunks(chunks)
         with open(to, 'wb') as f:
@@ -137,9 +139,9 @@ def main(args):
         generate_dummy(filename=args.dummy)
     sss = SSS()
     if args.enc:
-        return sss.chunking(enc=args.enc)
+        return sss.chunking(enc=args.enc, to=args.to)
     if args.dec:
-        return sss.restoring(dec=args.dec)
+        return sss.restoring(dec=args.dec, to=args.to)
     logger.error(f"See help (--help)")
     return False
 
@@ -149,6 +151,7 @@ if __name__ == "__main__":
     parser.add_argument('--dummy', type=str, help='Generate dummy file')
     parser.add_argument('--enc', type=str, help='Encrypted file')
     parser.add_argument('--dec', type=str, help='Decrypted file')
+    parser.add_argument('--to', type=str, help='Output file path')
     args = parser.parse_args()
     logger.debug(f"args::{args}")
     ok = main(args)
