@@ -40,6 +40,27 @@ class SSS:
     def __init__(self,):
         pass
 
+    def chunking(self, enc=None, n=3, chunk_prefix='TEST'):
+        with open(enc, "rb") as f:
+            encrypted = f.read()
+        logger.debug(f"len::{len(encrypted)}")
+        chunks = []
+        for mark, chunk in self.gen_chunks(encrypted, n=n):
+            chunk_name = f"{chunk_prefix}@{mark=}.chunk"
+            with open(chunk_name, "wb") as f:
+                f.write(chunk)
+            chunks.append(chunk_name)
+            logger.debug(f'mark::{mark}')
+            logger.debug(f'len::{len(chunk)}')
+        logger.debug(f'chunks::{chunks}')
+        return chunks
+
+    def gen_chunks(self, encrypted, n=3):
+        segments = self.segmentation(encrypted, n=n)
+        for mark, pair in self.neighborhood_combinations(segments):
+            chunk = self.combination(*pair, mark=mark)
+            yield (mark, chunk)
+
     def segmentation(self, encrypted, n=3):
         segments = []
         for i in range(n):
@@ -54,59 +75,13 @@ class SSS:
         for item in [(str(i%n)+str(j%n),(t[i%n],t[j%n])) for (i,j) in zip(a,b)]:
             yield item
 
-    def combination(
-            self,
-            left,
-            rght,
-            mark:str='',
-            sep_mark:str='=mark@',
-            sep_left:str='=rght@',
-            sep_rght:str='=left@'):
+    def combination(self, left, rght, mark:str=''):
         head = f"{mark}\n{len(left)}\n{len(rght)}\n".encode()
         chunk = head + left + rght
         return chunk
 
-    def gen_chunks(self,
-                   encrypted,
-                   n=3,
-                   sep_mark:str='=mark@',
-                   sep_left:str='=rght@',
-                   sep_rght:str='=left@'):
-        segments = self.segmentation(encrypted, n=n)
-        for mark, pair in self.neighborhood_combinations(segments):
-            chunk = self.combination(
-                *pair,
-                mark=mark,
-                sep_mark=sep_mark,
-                sep_left=sep_left,
-                sep_rght=sep_rght)
-            yield (mark, chunk)
-
-    def chunking(self,
-                 enc=None,
-                 n=3,
-                 chunk_prefix='TEST',
-                 sep_mark='=mark@',
-                 sep_left='=rght@',
-                 sep_rght='=left@'):
-        with open(enc, "rb") as f:
-            encrypted = f.read()
-        logger.debug(f"len::{len(encrypted)}")
-        chunks = []
-        for mark, chunk in self.gen_chunks(encrypted,
-                                           n=n,
-                                           sep_mark=sep_mark,
-                                           sep_left=sep_left,
-                                           sep_rght=sep_rght):
-            chunk_name = f"{chunk_prefix}@{mark=}.chunk"
-            with open(chunk_name, "wb") as f:
-                f.write(chunk)
-            chunks.append(chunk_name)
-            logger.debug(f'mark::{mark}')
-            logger.debug(f'len::{len(chunk)}')
-        logger.debug(f'chunks::{chunks}')
-        return chunks
-
+    # special case (3-2: 3 files, 2 segments in one file)
+    # TODO: generalized function
     def restoring(
             self,
             chunk_left,
@@ -204,7 +179,7 @@ def main(args):
     if args.enc:
         return sss.chunking(enc=args.enc)
     if args.dec:
-        return sss.chunking(enc=args.enc)
+        return sss.restoring(enc=args.dec)
     logger.error(f"See help (--help)")
     return False
 
