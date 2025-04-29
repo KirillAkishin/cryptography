@@ -80,14 +80,25 @@ python stegano.py -d ../../data/fifth_image.png
 ##### Commands
 ###### Generate test file
 ```bash
-python sharing.py --dummy="../../data/test-file"
+python sharing.py --dummy="../../data/sharing-file"
 ```
 
 ###### Sharing file
 ```bash
-python sharing.py --enc="../../data/test-file" --dummy="../../data/test-file"
+python sharing.py --enc="../../data/sharing-file" --dummy="../../data/sharing-file" --to="../../data/sharing-folder/"
 # or
-python sharing.py --enc="../../data/test-file"
+python sharing.py --enc="../../data/sharing-file" --dummy="../../data/sharing-file"
+# or
+python sharing.py --enc="../../data/sharing-file" --to="../../data/sharing-folder/"
+# or
+python sharing.py --enc="../../data/sharing-file"
+```
+
+###### Restoration to one file
+```bash
+python sharing.py --dec="../../data/sharing-folder/" --to="../../data/new-test-file"
+# or
+python sharing.py --dec="../../data/sharing-folder/"
 ```
 
 
