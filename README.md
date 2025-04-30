@@ -49,6 +49,9 @@ python encryptor.py -c "../../data/source" "../../data/source @TIMESTAMP"
 - https://habr.com/ru/articles/862598
 - https://habr.com/ru/articles/128327
 - https://habr.com/ru/articles/339432
+- https://www.reddit.com/r/Python/comments/yaqoxd/i_created_a_script_that_allows_you_to_store_any/
+- https://github.com/carlospuenteg/File-Injector
+- https://stackoverflow.com/questions/17269923/how-do-i-hide-a-file-inside-an-image-with-python
 
 ##### Commands
 ###### Encrypting file
