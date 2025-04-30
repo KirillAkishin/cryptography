@@ -35,6 +35,22 @@ class Stegano:
         return cap_b
 
     def insertion(self, image_data, payload_bytes):
+        if args.lsb is not True:
+            return self.insertion_lsb(image_data, payload_bytes)
+        return self.insertion_easy(image_data, payload_bytes)
+
+    def insertion_easy(self, image_data, payload_bytes):
+        with open("out.jpg", "wb") as out:
+            with open("a.jpg", "rb") as in_a:
+                cover_image = in_a.read()
+                ln_cover = len(cover_image)
+                print(ln_cover)
+                with open("b.pdf", "rb") as in_b:
+                    hidden_data = in_b.read()
+                    out.write(cover_image)
+                    out.write(hidden_data)
+
+    def insertion_lsb(self, image_data, payload_bytes):
         payload_header = "{:016}".format(len(payload_bytes)).encode()
         payload = list(payload_header + payload_bytes)
         new_image_data = []
@@ -64,6 +80,17 @@ class Stegano:
         return np.array(new_image_data)
 
     def extraction(self, image_data):
+        if args.lsb is not True:
+            return self.extraction_lsb(image_data)
+        return self.extraction_easy(image_data)
+
+    def extraction_easy(self, image_data):
+        with open("out.jpg", "rb") as out:
+            out_file = out.read()
+            with open("b2.pdf", "wb") as b2:
+                b2.write(out_file[ln_cover:])
+
+    def extraction_lsb(self, image_data):
         bit_string = ""
         output_bytes = b''
         payload_len = 0
@@ -142,6 +169,7 @@ if __name__ == "__main__":
     parser.add_argument('target', type=str, help="Either secret or image with payload")
     parser.add_argument('--img', type=str, help='Cover image')
     parser.add_argument('--res', type=str, help='Resulting file')
+    parser.add_argument('--lsb', action='store_true', default=False, help='turn on lsb mode')
     parser.add_argument('-e', action='store_true', default=False, help='turn on encrypting mode')
     parser.add_argument('-d', action='store_true', default=False, help='turn on decrypting mode')
     args = parser.parse_args()
