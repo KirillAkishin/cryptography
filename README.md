@@ -75,21 +75,15 @@ python stegano.py --mode=2 --sec=../../data/first_image.png --cov=../../data/sec
 python stegano.py --mode=2 --sec='secret-lsb' --cov=../../data/second_image.png --pld=../../data/third_image.png
 ```
 
-
 ##### Decryption
 ###### Decrypting file
 ```bash
 python stegano.py --mode=0 --pld=../../data/third_image.png --sec=../../data/fourth_image.png
 ```
 
-###### Decrypting file
-```bash
-python stegano.py -d ../../data/third_image.png --res=../../data/fourth_image.png
-```
-
 ###### Decrypting message
 ```bash
-python stegano.py -d ../../data/fifth_image.png
+python stegano.py --mode=0 --pld=../../data/third_image.png
 ```
 
 ### 03_sss
