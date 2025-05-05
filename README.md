@@ -35,7 +35,7 @@ python encryptor.py -c "../../data/source" "../../data/source @TIMESTAMP"
 ```
 
 ### 02_steganography
-##### Useful links
+#### Useful links
 - https://www.reddit.com/r/Python/comments/gdjnfn/my_take_at_steganography
 - https://exo.substack.com/p/the-exo-guide-to-data-cloaking
 - https://en.wikipedia.org/wiki/Steganography
@@ -53,20 +53,38 @@ python encryptor.py -c "../../data/source" "../../data/source @TIMESTAMP"
 - https://github.com/carlospuenteg/File-Injector
 - https://stackoverflow.com/questions/17269923/how-do-i-hide-a-file-inside-an-image-with-python
 
-##### Commands
-###### Encrypting file
+#### Commands
+##### Encryption
+###### Simple file encryption
 ```bash
-python stegano.py -e ../../data/first_image.png --img=../../data/second_image.png --res=../../data/third_image.png
+python stegano.py --mode=1 --sec=../../data/first_image.png --cov=../../data/second_image.png --pld=../../data/third_image.png
+```
+
+###### Simple message encryption
+```bash
+python stegano.py --mode=1 --sec='secret' --cov=../../data/second_image.png --pld=../../data/third_image.png
+```
+
+###### LSB file encryption
+```bash
+python stegano.py --mode=2 --sec=../../data/first_image.png --cov=../../data/second_image.png --pld=../../data/third_image.png
+```
+
+###### LSB message encryption
+```bash
+python stegano.py --mode=2 --sec='secret-lsb' --cov=../../data/second_image.png --pld=../../data/third_image.png
+```
+
+
+##### Decryption
+###### Decrypting file
+```bash
+python stegano.py --mode=0 --pld=../../data/third_image.png --sec=../../data/fourth_image.png
 ```
 
 ###### Decrypting file
 ```bash
 python stegano.py -d ../../data/third_image.png --res=../../data/fourth_image.png
-```
-
-###### Encrypting message
-```bash
-python stegano.py -e test_message+123 --img=../../data/second_image.png --res=../../data/fifth_image.png
 ```
 
 ###### Decrypting message
