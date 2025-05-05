@@ -18,8 +18,10 @@ def generate_random_image(filename:str|None='image.png', width=1_000, height=1_0
 class Steg:
     """LSB-method"""
 
-    def __init__(self):
-        pass
+    def __init__(self,):
+        self.headers = {
+            'cov_len': '\ncov_len={}',
+            }
 
     def _fractionalize(self, ):
         pass
@@ -75,10 +77,12 @@ class Steg:
     def insertion_easy(self, sec_bytes:str, cov:str, pld:str):
         with open(cov, "rb") as cov_file:
             cov_bytes = cov_file.read()
-            logger.debug(f"Length (cov): {len(cov_bytes)}")
+            cov_len = len(cov_bytes)
+            logger.debug(f"Length (cov): {cov_len}")
         with open(pld, "wb") as pld_file:
             pld_file.write(cov_bytes)
             pld_file.write(sec_bytes)
+            pld_file.write(self.headers['cov_len'].format(cov_len).encode())
         return True
 
     def insertion_lsb(self, sec_bytes, cov, pld):
@@ -119,22 +123,41 @@ class Steg:
         pld_image.save(pld)
         return True
 
-    def extraction(self, image_data):
-        if args.lsb is not True:
-            return self.extraction_lsb(image_data)
-        return self.extraction_easy(image_data)
 
-    def extraction_easy(self, image_data):
-        with open("out.jpg", "rb") as out:
-            out_file = out.read()
-            with open("b2.pdf", "wb") as b2:
-                b2.write(out_file[ln_cover:])
+    def decode(self, pld:str, cov:str=None, sec:str=None) -> bool:
+        with open(pld, "rb") as pld_file:
+            pld_lines = pld_file.readlines()
+        last_line = pld_lines[-1]
+        if last_line.startswith(self.headers['cov_len'].strip().split('=')[0].encode()):
+            cov_len = int(last_line.decode().split('=')[1])
+            logger.debug(f"{self.headers['cov_len'].format(cov_len).strip()}")
+            pld_bytes = b''.join(pld_lines[:-1])
+            sec_bytes = pld_bytes[cov_len:].strip()
+        else:
+            del(last_line)
+            del(pld_lines)
+            sec_bytes = self.extraction_lsb(pld)
 
-    def extraction_lsb(self, image_data):
+        if sec_bytes:
+            logger.debug(f"Length (sec): {len(sec_bytes)}")
+            if sec:
+                with open(sec, "wb") as sec_file:
+                    sec_file.write(sec_bytes)
+                return True
+            logger.warning(f"secret:\t'{sec_bytes.decode()}'")
+            return True
+        return False
+
+    def extraction_lsb(self, pld):
+        with Image.open(pld) as pld_img:
+            if not ((pld_img.mode == "RGB") or (pld_img.mode == "RGBA")):
+                logger.error(f"Image mode must be RGB or RGBA, not {pld_img.mode}")
+                return None
+            pld_data = np.asarray(pld_img)
         bit_string = ""
         output_bytes = b''
         payload_len = 0
-        for row in image_data:
+        for row in pld_data:
             for pixel in row:
                 for item in pixel:
                     last_bit = "{:08b}".format(item)[-1]  # the last bit of the byte
@@ -154,32 +177,10 @@ class Steg:
                         return output_bytes
         logger.error("Payload is incomplete")
 
-
-
-    def decode(self, encoded_image:str, secret_obj:str|None=None) -> bool:
-        with Image.open(encoded_image) as img:
-            if not ((img.mode == "RGB") or (img.mode == "RGBA")):
-                logger.error(f"Image mode must be RGB or RGBA, not {img.mode}")
-                return None
-            image_data = np.asarray(img)
-        output_bytes = self.extraction(image_data)
-        if output_bytes is None:
-            return False
-        logger.info(f'len:\t{len(output_bytes)}')
-        if secret_obj:
-            with open(secret_obj, 'wb') as f:
-                f.write(output_bytes)
-        else:
-            logger.warning(f"secret:\t'{output_bytes.decode()}'")
-        return True
-
-
 def main(args):
-    if args.cov == '':
-        cov
     steg = Steg()
     if args.mode == 0:
-        return steg.decode(pld=args.pld, sec=args.sec)
+        return steg.decode(sec=args.sec, cov=args.cov, pld=args.pld)
     if args.mode == 1:
         return steg.encode(sec=args.sec, cov=args.cov, pld=args.pld, mode='easy')
     if args.mode == 2:
